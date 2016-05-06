@@ -8,14 +8,11 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class RequestMapping {
 	private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
-	private Map<HandlerKey, Controller> mappings = new HashMap<>();
+	private Map<HandlerKey, HandlerExecution> mappings = new HashMap<>();
 
 	/**
 	 * TODO
@@ -26,7 +23,8 @@ public class RequestMapping {
 	 * 		  요청 "URL"과 요청 "Http Method" 정보이다. HandlerKey 클래스를 만들고 url과 method를 담을 수 있도록 리팩토링한다.
 	 * 		   (mappings.put(new HandlerKey(url, method), controllerInstance);
 	 * 		   (결과적으로 qna 패키지에는 QnaController가, user 패키지에는 UserController만 포함하도록 한다)
-	 * 3단계 : 매 요청마다 reflection을 통해 실행될 method를 찾는과정이 불필요해 보인다. 이 부분을 리팩토링하기 위해  실행될 메서드정보를 담고있는 HandlerExecution 클래스를 사용한다.
+	 * 3단계 : 계속 증가되는 컨트롤러를 줄이기 위해, 하나의 컨트롤러에서 여러개의 RequestMapping을 처리할 수 있도록 한다.
+	 * 		  이 부분을 리팩토링하기 위해  실행될 메서드정보를 담고있는 HandlerExecution 클래스를 사용한다.
 	 * 		   (mappings.put(new HandlerKey("/users", HttpMethod.GET), new HandlerExecution(controllerInstance, executedMethod));
 	 */
 	void initMapping() {
@@ -39,13 +37,18 @@ public class RequestMapping {
 						.map(classAnnotation -> classAnnotation.value())
 						.orElse("");
 
-				Method handleMethod = clazz.getDeclaredMethod("execute", HttpServletRequest.class, HttpServletResponse.class);
-				core.annotation.RequestMapping annotation = handleMethod.getDeclaredAnnotation(core.annotation.RequestMapping.class);
-				if (annotation != null) {
-					String requestUrl = prefixUrl + annotation.value();
-					RequestMethod requestMethod = annotation.method();
-					put(new HandlerKey(requestUrl, requestMethod), instance);
-				}
+				Arrays.asList(clazz.getDeclaredMethods())
+						.stream()
+						.filter(method -> {
+							core.annotation.RequestMapping annotation = method.getDeclaredAnnotation(core.annotation.RequestMapping.class);
+							return annotation != null && annotation.value().startsWith("/");
+						})
+						.forEach(method -> {
+							core.annotation.RequestMapping annotation = method.getDeclaredAnnotation(core.annotation.RequestMapping.class);
+							String requestUrl = prefixUrl + annotation.value();
+							RequestMethod requestMethod = annotation.method();
+							put(new HandlerKey(requestUrl, requestMethod), new HandlerExecution(instance, method));
+						});
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new UnsupportedOperationException("RequestMapping Initialization Exception");
@@ -55,11 +58,11 @@ public class RequestMapping {
 		logger.info("Initialized Request Mapping!");
 	}
 
-	public Controller findController(String url, RequestMethod method) {
+	public HandlerExecution findController(String url, RequestMethod method) {
 		return mappings.get(new HandlerKey(url, method));
 	}
 
-	void put(HandlerKey key, Controller controller) {
-		mappings.put(key, controller);
+	void put(HandlerKey key, HandlerExecution execution) {
+		mappings.put(key, execution);
 	}
 }

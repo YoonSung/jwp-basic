@@ -37,10 +37,10 @@ public class DispatcherServlet extends HttpServlet {
 			throw new ServletException("invalid method request");
 		}
 
-		Controller controller = rm.findController(req.getRequestURI(), method);
+		HandlerExecution handlerExecution = rm.findController(req.getRequestURI(), method);
 		ModelAndView mav;
 		try {
-			mav = controller.execute(req, resp);
+			mav = handlerExecution.execute(req, resp);
 			View view = mav.getView();
 			view.render(mav.getModel(), req, resp);
 		} catch (Throwable e) {
