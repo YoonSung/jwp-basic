@@ -17,11 +17,11 @@ public class DispatcherServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
-	private RequestMapping rm;
+	private AnnotationHandlerMapping rm;
 
 	@Override
 	public void init() throws ServletException {
-		rm = new RequestMapping();
+		rm = new AnnotationHandlerMapping();
 		rm.initMapping();
 	}
 
@@ -37,7 +37,7 @@ public class DispatcherServlet extends HttpServlet {
 			throw new ServletException("invalid method request");
 		}
 
-		HandlerExecution handlerExecution = rm.findController(req.getRequestURI(), method);
+		HandlerExecution handlerExecution = rm.getHandler(req.getRequestURI(), method);
 		ModelAndView mav;
 		try {
 			mav = handlerExecution.execute(req, resp);

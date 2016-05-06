@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class RequestMapping {
+public class AnnotationHandlerMapping {
 	private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 	private Map<HandlerKey, HandlerExecution> mappings = new HashMap<>();
 
@@ -58,7 +58,7 @@ public class RequestMapping {
 		logger.info("Initialized Request Mapping!");
 	}
 
-	public HandlerExecution findController(String url, RequestMethod method) {
+	public HandlerExecution getHandler(String url, RequestMethod method) {
 		return mappings.get(new HandlerKey(url, method));
 	}
 
