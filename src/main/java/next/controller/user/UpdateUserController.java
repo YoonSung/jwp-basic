@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import core.annotation.Controller;
 import core.annotation.RequestMapping;
+import core.annotation.RequestMethod;
 import next.controller.UserSessionUtils;
 import next.dao.UserDao;
 import next.model.User;
@@ -21,7 +22,7 @@ public class UpdateUserController extends AbstractController {
 	private UserDao userDao = UserDao.getInstance();
     
 	@Override
-    @RequestMapping(value = "/users/update")
+    @RequestMapping(value = "/users/update", method = RequestMethod.PUT)
 	public ModelAndView execute(HttpServletRequest req, HttpServletResponse response) throws Exception {
 		User user = userDao.findByUserId(req.getParameter("userId"));
 		

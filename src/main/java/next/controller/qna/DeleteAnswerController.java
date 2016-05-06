@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import core.annotation.Controller;
 import core.annotation.RequestMapping;
+import core.annotation.RequestMethod;
 import next.dao.AnswerDao;
 import next.model.Result;
 import core.jdbc.DataAccessException;
@@ -16,7 +17,7 @@ public class DeleteAnswerController extends AbstractController {
 	private AnswerDao answerDao = AnswerDao.getInstance();
 
 	@Override
-	@RequestMapping(value = "/api/qna/deleteAnswer")
+	@RequestMapping(value = "/api/qna/deleteAnswer", method = RequestMethod.DELETE)
 	public ModelAndView execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Long answerId = Long.parseLong(request.getParameter("answerId"));
         

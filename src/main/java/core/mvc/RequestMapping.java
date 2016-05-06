@@ -1,40 +1,21 @@
 package core.mvc;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.*;
-
-import com.sun.deploy.net.HttpRequest;
 import core.annotation.RequestMethod;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import next.controller.HomeController;
-import next.controller.qna.AddAnswerController;
-import next.controller.qna.ApiDeleteQuestionController;
-import next.controller.qna.ApiListQuestionController;
-import next.controller.qna.CreateFormQuestionController;
-import next.controller.qna.CreateQuestionController;
-import next.controller.qna.DeleteAnswerController;
-import next.controller.qna.DeleteQuestionController;
-import next.controller.qna.ShowQuestionController;
-import next.controller.qna.UpdateFormQuestionController;
-import next.controller.qna.UpdateQuestionController;
-import next.controller.user.CreateUserController;
-import next.controller.user.ListUserController;
-import next.controller.user.LoginController;
-import next.controller.user.LogoutController;
-import next.controller.user.ProfileController;
-import next.controller.user.UpdateFormUserController;
-import next.controller.user.UpdateUserController;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public class RequestMapping {
 	private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
-	private Map<String, Controller> mappings = new HashMap<>();
+	private Map<HandlerKey, Controller> mappings = new HashMap<>();
 
 	/**
 	 * TODO
@@ -44,6 +25,7 @@ public class RequestMapping {
 	 *        또한 컨트롤러 클래스를 합치기 위해서는 각 요청마다 식별될 정보를 판단해야 한다. 요청별로 식별될 수 있는 값은
 	 * 		  요청 "URL"과 요청 "Http Method" 정보이다. HandlerKey 클래스를 만들고 url과 method를 담을 수 있도록 리팩토링한다.
 	 * 		   (mappings.put(new HandlerKey(url, method), controllerInstance);
+	 * 		   (결과적으로 qna 패키지에는 QnaController가, user 패키지에는 UserController만 포함하도록 한다)
 	 * 3단계 : 매 요청마다 reflection을 통해 실행될 method를 찾는과정이 불필요해 보인다. 이 부분을 리팩토링하기 위해  실행될 메서드정보를 담고있는 HandlerExecution 클래스를 사용한다.
 	 * 		   (mappings.put(new HandlerKey("/users", HttpMethod.GET), new HandlerExecution(controllerInstance, executedMethod));
 	 */
@@ -59,46 +41,25 @@ public class RequestMapping {
 
 				Method handleMethod = clazz.getDeclaredMethod("execute", HttpServletRequest.class, HttpServletResponse.class);
 				core.annotation.RequestMapping annotation = handleMethod.getDeclaredAnnotation(core.annotation.RequestMapping.class);
-
 				if (annotation != null) {
 					String requestUrl = prefixUrl + annotation.value();
-					put(requestUrl, instance);
+					RequestMethod requestMethod = annotation.method();
+					put(new HandlerKey(requestUrl, requestMethod), instance);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new UnsupportedOperationException("RequestMappig Initialization Exception");
+				throw new UnsupportedOperationException("RequestMapping Initialization Exception");
 			}
 		});
 
-//		mappings.put("/", new HomeController());
-//	    mappings.put("/users/form", new ForwardController("/user/form.jsp"));
-//	    mappings.put("/users/loginForm", new ForwardController("/user/login.jsp"));
-//	    mappings.put("/users", new ListUserController());
-//		mappings.put("/users/login", new LoginController());
-//		mappings.put("/users/profile", new ProfileController());
-//	    mappings.put("/users/logout", new LogoutController());
-//	    mappings.put("/users/create", new CreateUserController());
-//	    mappings.put("/users/updateForm", new UpdateFormUserController());
-//	    mappings.put("/users/update", new UpdateUserController());
-//		mappings.put("/qna/show", new ShowQuestionController());
-//		mappings.put("/qna/form", new CreateFormQuestionController());
-//		mappings.put("/qna/create", new CreateQuestionController());
-//		mappings.put("/qna/updateForm", new UpdateFormQuestionController());
-//		mappings.put("/qna/update", new UpdateQuestionController());
-//		mappings.put("/qna/delete", new DeleteQuestionController());
-//		mappings.put("/api/qna/deleteQuestion", new ApiDeleteQuestionController());
-//		mappings.put("/api/qna/list", new ApiListQuestionController());
-//		mappings.put("/api/qna/addAnswer", new AddAnswerController());
-//		mappings.put("/api/qna/deleteAnswer", new DeleteAnswerController());
-
 		logger.info("Initialized Request Mapping!");
 	}
-	
-	public Controller findController(String url) {
-		return mappings.get(url);
+
+	public Controller findController(String url, RequestMethod method) {
+		return mappings.get(new HandlerKey(url, method));
 	}
-	
-	void put(String url, Controller controller) {
-		mappings.put(url, controller);
+
+	void put(HandlerKey key, Controller controller) {
+		mappings.put(key, controller);
 	}
 }

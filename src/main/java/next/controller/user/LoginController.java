@@ -6,6 +6,7 @@ import javax.servlet.http.HttpSession;
 
 import core.annotation.Controller;
 import core.annotation.RequestMapping;
+import core.annotation.RequestMethod;
 import next.dao.UserDao;
 import next.model.User;
 import core.mvc.AbstractController;
@@ -16,7 +17,7 @@ public class LoginController extends AbstractController {
 	private UserDao userDao = UserDao.getInstance();
 	
     @Override
-    @RequestMapping(value = "/users/login")
+    @RequestMapping(value = "/users/login", method = RequestMethod.POST)
     public ModelAndView execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String userId = request.getParameter("userId");
         String password = request.getParameter("password");

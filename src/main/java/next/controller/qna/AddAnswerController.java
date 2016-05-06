@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import core.annotation.Controller;
 import core.annotation.RequestMapping;
+import core.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public class AddAnswerController extends AbstractController {
 	private AnswerDao answerDao = AnswerDao.getInstance();
 
 	@Override
-	@RequestMapping(value = "/api/qna/addAnswer")
+	@RequestMapping(value = "/api/qna/addAnswer", method = RequestMethod.POST)
 	public ModelAndView execute(HttpServletRequest req, HttpServletResponse response) throws Exception {
     	if (!UserSessionUtils.isLogined(req.getSession())) {
 			return jsonView().addObject("result", Result.fail("Login is required"));

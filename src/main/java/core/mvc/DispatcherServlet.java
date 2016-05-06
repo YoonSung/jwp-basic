@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import core.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,14 @@ public class DispatcherServlet extends HttpServlet {
 		String requestUri = req.getRequestURI();
 		logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
 
-		Controller controller = rm.findController(req.getRequestURI());
+		RequestMethod method = null;
+		try {
+			method = RequestMethod.valueOf(req.getMethod());
+		} catch (NullPointerException e ) {
+			throw new ServletException("invalid method request");
+		}
+
+		Controller controller = rm.findController(req.getRequestURI(), method);
 		ModelAndView mav;
 		try {
 			mav = controller.execute(req, resp);
