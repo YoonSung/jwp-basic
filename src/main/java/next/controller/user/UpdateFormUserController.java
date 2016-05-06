@@ -3,16 +3,20 @@ package next.controller.user;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import core.annotation.Controller;
+import core.annotation.RequestMapping;
 import next.controller.UserSessionUtils;
 import next.dao.UserDao;
 import next.model.User;
 import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 
+@Controller
 public class UpdateFormUserController extends AbstractController {
 	private UserDao userDao = UserDao.getInstance();
 	
 	@Override
+	@RequestMapping(value = "/users/updateForm")
 	public ModelAndView execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
     	User user = userDao.findByUserId(request.getParameter("userId"));
 

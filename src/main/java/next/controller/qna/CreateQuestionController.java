@@ -3,6 +3,8 @@ package next.controller.qna;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import core.annotation.Controller;
+import core.annotation.RequestMapping;
 import next.controller.UserSessionUtils;
 import next.dao.QuestionDao;
 import next.model.Question;
@@ -10,10 +12,12 @@ import next.model.User;
 import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 
+@Controller
 public class CreateQuestionController extends AbstractController {
 	private QuestionDao questionDao = QuestionDao.getInstance();
 	
 	@Override
+	@RequestMapping(value = "/qna/create")
 	public ModelAndView execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
     	if (!UserSessionUtils.isLogined(request.getSession())) {
 			return jspView("redirect:/users/loginForm");

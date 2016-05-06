@@ -3,6 +3,8 @@ package next.controller.user;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import core.annotation.Controller;
+import core.annotation.RequestMapping;
 import next.controller.UserSessionUtils;
 import next.dao.UserDao;
 import next.model.User;
@@ -13,11 +15,13 @@ import org.slf4j.LoggerFactory;
 import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 
+@Controller
 public class UpdateUserController extends AbstractController {
 	private static final Logger log = LoggerFactory.getLogger(UpdateUserController.class);
 	private UserDao userDao = UserDao.getInstance();
     
 	@Override
+    @RequestMapping(value = "/users/update")
 	public ModelAndView execute(HttpServletRequest req, HttpServletResponse response) throws Exception {
 		User user = userDao.findByUserId(req.getParameter("userId"));
 		

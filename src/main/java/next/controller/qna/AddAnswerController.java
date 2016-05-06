@@ -3,6 +3,8 @@ package next.controller.qna;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import core.annotation.Controller;
+import core.annotation.RequestMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +17,7 @@ import next.model.Answer;
 import next.model.Result;
 import next.model.User;
 
+@Controller
 public class AddAnswerController extends AbstractController {
 	private static final Logger log = LoggerFactory.getLogger(AddAnswerController.class);
 
@@ -22,6 +25,7 @@ public class AddAnswerController extends AbstractController {
 	private AnswerDao answerDao = AnswerDao.getInstance();
 
 	@Override
+	@RequestMapping(value = "/api/qna/addAnswer")
 	public ModelAndView execute(HttpServletRequest req, HttpServletResponse response) throws Exception {
     	if (!UserSessionUtils.isLogined(req.getSession())) {
 			return jsonView().addObject("result", Result.fail("Login is required"));

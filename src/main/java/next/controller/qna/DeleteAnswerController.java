@@ -3,16 +3,20 @@ package next.controller.qna;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import core.annotation.Controller;
+import core.annotation.RequestMapping;
 import next.dao.AnswerDao;
 import next.model.Result;
 import core.jdbc.DataAccessException;
 import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 
+@Controller
 public class DeleteAnswerController extends AbstractController {
 	private AnswerDao answerDao = AnswerDao.getInstance();
 
 	@Override
+	@RequestMapping(value = "/api/qna/deleteAnswer")
 	public ModelAndView execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Long answerId = Long.parseLong(request.getParameter("answerId"));
         
