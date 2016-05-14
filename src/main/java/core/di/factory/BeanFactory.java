@@ -1,9 +1,11 @@
 package core.di.factory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.*;
 
+import core.annotation.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,5 +75,15 @@ public class BeanFactory {
 
 	private void registerBean(Class<?> parameterClass, Object bean) {
 		beans.put(parameterClass, bean);
+	}
+
+	public Map<Class<?>, Object> getAnnotatedBeans(Class<? extends Annotation> annotation) {
+		Map<Class<?>, Object> beans = Maps.newHashMap();
+		preInstanticateBeans
+				.stream()
+				.filter(clazz -> clazz.isAnnotationPresent(annotation))
+				.filter(clazz -> getBean(clazz) != null)
+				.forEach(clazz -> beans.put(clazz, getBean(clazz)));
+		return beans;
 	}
 }
