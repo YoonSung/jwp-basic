@@ -29,7 +29,7 @@ public class BeanFactory {
 	public void initialize() {
 		preInstanticateBeans.forEach(clazz -> {
 			if (getBean(clazz) == null) {
-				beans.put(clazz, initiateBean(clazz));
+				registerBean(clazz, initiateBean(clazz));
 			}
 		});
 	}
@@ -37,15 +37,14 @@ public class BeanFactory {
 	private Object initiateBean(Class<?> preinstanticateBean) {
 		Constructor diConstructor = BeanFactoryUtils.getInjectedConstructor(preinstanticateBean);
 		if (diConstructor != null) {
-			Parameter[] parameters = diConstructor.getParameters();
 			List<Object> parameterBeanList = new ArrayList<>();
-			for (Parameter parameter : parameters) {
+			for (Parameter parameter : diConstructor.getParameters()) {
 				Class<?> parameterClass = BeanFactoryUtils.findConcreteClass(parameter.getType(), preInstanticateBeans);
 
 				Object bean = getBean(parameterClass);
 				if (bean == null) {
 					bean = initiateBean(parameterClass);
-					beans.put(parameterClass, bean);
+					registerBean(parameterClass, bean);
 				}
 				parameterBeanList.add(bean);
 			}
@@ -56,9 +55,8 @@ public class BeanFactory {
 		/*
 		return Optional.ofNullable(BeanFactoryUtils.getInjectedConstructor(preinstanticateBean))
 				.map(diConstructor -> {
-					Parameter[] parameters = diConstructor.getParameters();
 					List<Object> parameterBeanList = new ArrayList<>();
-					for (Parameter parameter : parameters) {
+					for (Parameter parameter : diConstructor.getParameters()) {
 						Class<?> parameterClass = BeanFactoryUtils.findConcreteClass(parameter.getType(), preInstanticateBeans);
 						Object bean = getBean(parameterClass);
 						if (bean == null) {
@@ -71,5 +69,9 @@ public class BeanFactory {
 				})
 				.orElse(BeanUtils.instantiate(preinstanticateBean));
 		*/
+	}
+
+	private void registerBean(Class<?> parameterClass, Object bean) {
+		beans.put(parameterClass, bean);
 	}
 }
