@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Map;
 import java.util.Set;
 
+import core.di.factory.example.FieldDIController;
+import core.di.factory.example.MethodDIController;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -36,6 +38,12 @@ public class BeanFactoryTest {
 		MyQnaService qnaService = qnaController.getQnaService();
 		assertNotNull(qnaService.getUserRepository());
 		assertNotNull(qnaService.getQuestionRepository());
+
+		FieldDIController fieldDIController = beanFactory.getBean(FieldDIController.class);
+		assertNotNull(fieldDIController.getJdbcQuestionRepository());
+
+		MethodDIController methodDIController = beanFactory.getBean(MethodDIController.class);
+		assertNotNull(methodDIController.getJdbcQuestionRepository());
 	}
 	
 	@Test

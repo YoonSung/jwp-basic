@@ -16,7 +16,6 @@ public class BeanFactory {
     private Set<Class<?>> preInstanticateBeans;
 
 	private Map<Class<?>, Object> beans = Maps.newHashMap();
-	private Set<Class<?>> preInstantiateBeans;
 
 	public BeanFactory(Set<Class<?>> preInstanticateBeans) {
         this.preInstanticateBeans = preInstanticateBeans;
@@ -53,6 +52,6 @@ public class BeanFactory {
 	}
 
 	public Set<Class<?>> getPreInstantiateBeans() {
-		return preInstantiateBeans;
+		return preInstanticateBeans;
 	}
 }

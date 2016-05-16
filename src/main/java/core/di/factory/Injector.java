@@ -134,8 +134,9 @@ class SetterInjector extends AbstractInjector {
     public void inject(Class<?> beanFrame) {
         Object bean = instantiateClass(beanFrame);
         Set<Method> methods = ReflectionUtils.getMethods(beanFrame, ReflectionUtils.withAnnotation(Inject.class));
-        Iterator<Method> iterator = methods.iterator();
-        for(Method method = iterator.next(); iterator.hasNext();iterator.next()) {
+
+        for(Iterator<Method> iterator = methods.iterator(); iterator.hasNext();) {
+            Method method = iterator.next();
             method.setAccessible(true);
             switch (method.getParameters().length) {
                 case 0:
@@ -147,7 +148,7 @@ class SetterInjector extends AbstractInjector {
 
             }
             try {
-                method.invoke(bean, method.getParameters()[0]);
+                method.invoke(bean, new Object[]{instantiateClass(method.getParameters()[0].getType())});
             } catch (IllegalAccessException e) {
                 log.error("Cannot access to Method. because Method is not public");
                 e.printStackTrace();
@@ -173,11 +174,11 @@ class DirectFieldInjector extends AbstractInjector {
     public void inject(Class<?> beanFrame) {
         Object bean = instantiateClass(beanFrame);
         Set<Field> fields = ReflectionUtils.getAllFields(beanFrame, ReflectionUtils.withAnnotation(Inject.class));
-        Iterator<Field> iterator = fields.iterator();
-        for(Field field = iterator.next(); iterator.hasNext();iterator.next()) {
+        for(Iterator<Field> iterator = fields.iterator(); iterator.hasNext();) {
+            Field field = iterator.next();
             field.setAccessible(true);
             try {
-                field.set(bean, instantiateClass(field.getClass()));
+                field.set(bean, instantiateClass(field.getType()));
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
                 log.error("Cannot access to field. Bean DI is Fail");
