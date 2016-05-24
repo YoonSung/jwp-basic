@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 
 import core.annotation.Bean;
 import core.annotation.Inject;
+import org.reflections.ReflectionUtils;
 
 public class BeanFactoryUtils {
 	@SuppressWarnings({ "unchecked" })
@@ -60,14 +61,20 @@ public class BeanFactoryUtils {
 		if (!injectedClazz.isInterface()) {
 			return injectedClazz;
 		}
-		
+
 		for (Class<?> clazz : preInstanticateBeans) {
 			Set<Class<?>> interfaces = Sets.newHashSet(clazz.getInterfaces());
 			if (interfaces.contains(injectedClazz)) {
 				return clazz;
 			}
 		}
-		
+
+		for (Class<?> clazz : preInstanticateBeans) {
+			if (clazz == injectedClazz) {
+				return injectedClazz;
+			}
+		}
+
 		throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
 	}
 

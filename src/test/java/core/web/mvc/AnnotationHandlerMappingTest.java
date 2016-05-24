@@ -13,7 +13,7 @@ public class AnnotationHandlerMappingTest {
 	
 	@Before
 	public void setup() {
-		handlerMapping = new AnnotationHandlerMapping("core.nmvc");
+		handlerMapping = new AnnotationHandlerMapping("core.web.mvc");
 		handlerMapping.initialize();
 	}
 

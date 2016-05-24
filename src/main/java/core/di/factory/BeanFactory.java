@@ -1,9 +1,7 @@
 package core.di.factory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,7 +76,11 @@ public class BeanFactory implements BeanDefinitionRegistry {
 		Object configInstance = getBean(configurationClass);
 		Method method = BeanFactoryUtils.getBeanMethod(configurationClass, beanClass);
 		try {
-			return method.invoke(configInstance, new Object[]{});
+			List<Object> parameters = Lists.newArrayList();
+			for (Class<?> parameterType : method.getParameterTypes()) {
+				parameters.add(getBean(parameterType));
+			}
+			return method.invoke(configInstance, parameters.toArray());
 		} catch (IllegalAccessException e) {
 			throw new IllegalStateException("Bean Factory method is not public", e);
 		} catch (InvocationTargetException e) {
