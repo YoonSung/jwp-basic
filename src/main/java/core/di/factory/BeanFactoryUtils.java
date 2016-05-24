@@ -13,6 +13,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+import core.annotation.Bean;
 import core.annotation.Inject;
 
 public class BeanFactoryUtils {
@@ -68,5 +69,14 @@ public class BeanFactoryUtils {
 		}
 		
 		throw new IllegalStateException(injectedClazz + "인터페이스를 구현하는 Bean이 존재하지 않는다.");
+	}
+
+	public static Method getBeanMethod(Class<?> configurationClass, Class<?> beanClass) {
+		for (Method method : getAllMethods(configurationClass, withAnnotation(Bean.class))) {
+			if (method.getReturnType() == beanClass) {
+				return method;
+			}
+		}
+		throw new IllegalStateException(beanClass + "을 초기화하는 메서드가 존재하지 않는다.");
 	}
 }

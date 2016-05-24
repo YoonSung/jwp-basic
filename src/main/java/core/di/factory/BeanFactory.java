@@ -2,6 +2,8 @@ package core.di.factory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +14,8 @@ import org.springframework.beans.BeanUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import static core.di.factory.InjectType.INJECT_NO;
 
 public class BeanFactory implements BeanDefinitionRegistry {
 	private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
@@ -54,12 +58,31 @@ public class BeanFactory implements BeanDefinitionRegistry {
     }
 
 	private Object inject(BeanDefinition beanDefinition) {
-		if (beanDefinition.getResolvedInjectMode() == InjectType.INJECT_NO) {
-			return BeanUtils.instantiate(beanDefinition.getBeanClass());
-		} else if (beanDefinition.getResolvedInjectMode() == InjectType.INJECT_FIELD){
-			return injectFields(beanDefinition);
-		} else {
-			return injectConstructor(beanDefinition);
+		switch(beanDefinition.getResolvedInjectMode()) {
+			case INJECT_NO:
+				return BeanUtils.instantiate(beanDefinition.getBeanClass());
+			case INJECT_FIELD:
+				return injectFields(beanDefinition);
+			case INJECT_CONSTRUCTOR:
+				return injectConstructor(beanDefinition);
+			case INJECT_CONFIGURATION:
+				return injectByConfiguration(beanDefinition);
+			default:
+				throw new UnsupportedOperationException(String.format("Invalid BeanDefinition [class : %s]", beanDefinition.getBeanClass().getCanonicalName()));
+		}
+	}
+
+	private Object injectByConfiguration(BeanDefinition beanDefinition) {
+		Class<?> configurationClass = beanDefinition.getConfigurationClass();
+		Class<?> beanClass = beanDefinition.getBeanClass();
+		Object configInstance = getBean(configurationClass);
+		Method method = BeanFactoryUtils.getBeanMethod(configurationClass, beanClass);
+		try {
+			return method.invoke(configInstance, new Object[]{});
+		} catch (IllegalAccessException e) {
+			throw new IllegalStateException("Bean Factory method is not public", e);
+		} catch (InvocationTargetException e) {
+			throw new IllegalStateException("Factory method invoke fail", e);
 		}
 	}
 

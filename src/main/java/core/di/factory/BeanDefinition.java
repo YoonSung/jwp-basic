@@ -8,6 +8,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 
 public class BeanDefinition {
+	private Class<?> configurationClass;
 	private Class<?> beanClazz;
 	private Constructor<?> injectConstructor;
 	private Set<Field> injectFields;
@@ -16,6 +17,11 @@ public class BeanDefinition {
 		this.beanClazz = clazz;
 		injectConstructor = getInjectConstructor(clazz);
 		injectFields = getInjectFields(clazz, injectConstructor);
+	}
+
+	public BeanDefinition(Class<?> beanClazz, Class<?> configurationClass) {
+		this.beanClazz = beanClazz;
+		this.configurationClass = configurationClass;
 	}
 
 	private static Constructor<?> getInjectConstructor(Class<?> clazz) {
@@ -70,6 +76,10 @@ public class BeanDefinition {
 	}
 
 	public InjectType getResolvedInjectMode() {
+		if (configurationClass != null) {
+			return InjectType.INJECT_CONFIGURATION;
+		}
+
 		if (injectConstructor != null) {
 			return InjectType.INJECT_CONSTRUCTOR;
 		}
@@ -79,5 +89,9 @@ public class BeanDefinition {
 		}
 
 		return InjectType.INJECT_NO;
+	}
+
+	public Class<?> getConfigurationClass() {
+		return configurationClass;
 	}
 }

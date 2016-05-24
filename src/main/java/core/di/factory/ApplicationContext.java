@@ -11,6 +11,13 @@ public class ApplicationContext {
 		scanner.doScan(basePackages);
 		beanFactory.initialize();
 	}
+
+	public ApplicationContext(Class<?> configurationClass) {
+		beanFactory = new BeanFactory();
+		ClasspathBeanDefinitionScanner scanner = new ClasspathBeanDefinitionScanner(beanFactory);
+		scanner.doScan(configurationClass);
+		beanFactory.initialize();
+	}
 	
 	public <T> T getBean(Class<T> clazz) {
 		return beanFactory.getBean(clazz);
