@@ -17,19 +17,21 @@ import com.google.common.collect.Lists;
 import core.web.view.ModelAndView;
 import core.web.view.View;
 
-@WebServlet(name = "dispatcher", urlPatterns = {"", "/"}, loadOnStartup = 1)
 public class DispatcherServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
+	private final HandlerMapping handlerMapping;
 	private List<HandlerMapping> mappings = Lists.newArrayList();
 	private List<HandlerAdapter> handlerAdapters = Lists.newArrayList();
 
+	public DispatcherServlet(HandlerMapping mappings) {
+		this.handlerMapping = mappings;
+	}
+
 	@Override
 	public void init() throws ServletException {
-		AnnotationHandlerMapping ahm = new AnnotationHandlerMapping("next");
-		ahm.initialize();
-		mappings.add(ahm);
+		mappings.add(handlerMapping);
 		handlerAdapters.add(new HandlerExecutionHandlerAdapter());
 	}
 
